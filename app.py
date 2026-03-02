@@ -13,12 +13,15 @@ sys.path.append(PROJECT_ROOT)
 from dotenv import load_dotenv
 load_dotenv()
 
-# Set environment variables from Streamlit secrets if available
-if hasattr(st, 'secrets'):
-    if 'GROQ_API_KEY' in st.secrets:
-        os.environ['GROQ_API_KEY'] = st.secrets['GROQ_API_KEY']
-    if 'DB_PATH' in st.secrets:
-        os.environ['DB_PATH'] = st.secrets['DB_PATH']
+# Set environment variables from Streamlit secrets if available (only on Streamlit Cloud)
+try:
+    if hasattr(st, 'secrets') and st.secrets._secrets is not None:
+        if 'GROQ_API_KEY' in st.secrets:
+            os.environ['GROQ_API_KEY'] = st.secrets['GROQ_API_KEY']
+        if 'DB_PATH' in st.secrets:
+            os.environ['DB_PATH'] = st.secrets['DB_PATH']
+except Exception:
+    pass  # No secrets available locally
 
 # Function to initialize database for Streamlit Cloud
 @st.cache_resource
@@ -325,54 +328,33 @@ st.markdown("""
         gap: 1rem;
     }
     
-    /* Style the rating buttons - specific targeting for rating section only */
-    .rating-section div[data-testid="stHorizontalBlock"] {
-        gap: 0.5rem !important;
-        width: fit-content !important;
-    }
-    
-    .rating-section div[data-testid="stHorizontalBlock"] div[data-testid="column"] {
-        flex: 0 0 auto !important;
-        min-width: unset !important;
-        width: auto !important;
-    }
-    
-    .rating-section div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) .stButton > button,
-    .rating-section div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(3) .stButton > button {
+    /* Style the rating buttons - targeted by help text attribute */
+    .rating-section button[kind="secondary"] {
         width: 55px !important;
         height: 42px !important;
         border-radius: 10px !important;
         background: linear-gradient(135deg, #ef4f5f 0%, #dc2626 100%) !important;
-        border: 2px solid rgba(255,255,255,0.5) !important;
+        border: 2px solid rgba(255,255,255,0.6) !important;
         color: #ffffff !important;
-        font-size: 2rem !important;
-        font-weight: 400 !important;
+        font-size: 1.5rem !important;
+        font-weight: 700 !important;
         padding: 0 !important;
         min-width: 55px !important;
         max-width: 55px !important;
         box-shadow: 0 3px 10px rgba(239, 79, 95, 0.5), inset 0 1px 0 rgba(255,255,255,0.4) !important;
         text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        overflow: visible !important;
-        position: relative !important;
     }
     
-    .rating-section div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) .stButton > button:hover,
-    .rating-section div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(3) .stButton > button:hover {
+    .rating-section button[kind="secondary"]:hover {
         background: linear-gradient(135deg, #ff6b7a 0%, #ef4f5f 100%) !important;
         transform: translateY(-2px) !important;
         box-shadow: 0 5px 15px rgba(239, 79, 95, 0.6), inset 0 1px 0 rgba(255,255,255,0.5) !important;
-        border-color: rgba(255,255,255,0.8) !important;
+        border-color: rgba(255,255,255,0.9) !important;
     }
     
-    .rating-section div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(2) {
-        min-width: 70px !important;
-        text-align: center !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+    /* Ensure rating section columns don't stretch */
+    .rating-section > div > div {
+        gap: 0.5rem !important;
     }
     
     /* Submit button */
@@ -696,19 +678,20 @@ with col3:
 st.markdown('<div class="rating-section">', unsafe_allow_html=True)
 st.markdown('<div class="field-label"><span class="icon">⭐</span> Ratings *</div>', unsafe_allow_html=True)
 
-# Styled stepper buttons using Streamlit columns
-col1, col2, col3 = st.columns([1, 1.5, 1])
-with col1:
-    if st.button("−", key="minus_rating"):
+# Create columns with specific widths for the stepper
+rating_cols = st.columns([1, 2, 1])
+
+with rating_cols[0]:
+    if st.button("**−**", key="minus_rating", help="Decrease rating"):
         if st.session_state.rating > 0:
             st.session_state.rating = round(st.session_state.rating - 0.5, 1)
             st.rerun()
 
-with col2:
-    st.markdown(f'<div style="text-align: center; font-size: 1.8rem; font-weight: 700; color: white; padding: 0 10px;">{st.session_state.rating}</div>', unsafe_allow_html=True)
+with rating_cols[1]:
+    st.markdown(f'<div style="text-align: center; font-size: 2rem; font-weight: 700; color: white; padding: 5px 0;">{st.session_state.rating}</div>', unsafe_allow_html=True)
 
-with col3:
-    if st.button("+", key="plus_rating"):
+with rating_cols[2]:
+    if st.button("**+**", key="plus_rating", help="Increase rating"):
         if st.session_state.rating < 5:
             st.session_state.rating = round(st.session_state.rating + 0.5, 1)
             st.rerun()
