@@ -2,6 +2,8 @@ import streamlit as st
 import os
 import sys
 import json
+import sqlite3
+import pandas as pd
 
 # Add project root to path
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -18,6 +20,48 @@ if hasattr(st, 'secrets'):
     if 'DB_PATH' in st.secrets:
         os.environ['DB_PATH'] = st.secrets['DB_PATH']
 
+# Function to initialize database for Streamlit Cloud
+@st.cache_resource
+def initialize_database():
+    """Initialize the database if it doesn't exist (for Streamlit Cloud deployment)"""
+    db_path = os.path.join(PROJECT_ROOT, "restaurants.db")
+    
+    # Check if database already exists and has data
+    if os.path.exists(db_path):
+        try:
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM restaurants")
+            count = cursor.fetchone()[0]
+            conn.close()
+            if count > 0:
+                return db_path
+        except:
+            pass
+    
+    # Try to load from D: drive if available (local development)
+    d_drive_db = "D:/restaurants.db"
+    if os.path.exists(d_drive_db):
+        try:
+            conn = sqlite3.connect(d_drive_db)
+            df = pd.read_sql_query("SELECT * FROM restaurants", conn)
+            conn.close()
+            
+            # Save to local path
+            conn = sqlite3.connect(db_path)
+            df.to_sql('restaurants', conn, if_exists='replace', index=False)
+            conn.close()
+            return db_path
+        except:
+            pass
+    
+    return db_path
+
+# Initialize database
+DB_PATH = initialize_database()
+if DB_PATH:
+    os.environ['DB_PATH'] = DB_PATH
+
 from phase3_llm.llm_service import RestaurantOrchestrator
 
 # Page configuration
@@ -28,12 +72,17 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS
+# Custom CSS - Dark Theme
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
     
     * { font-family: 'Inter', sans-serif; }
+    
+    /* Main background */
+    .stApp {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    }
     
     .main-header {
         text-align: center;
@@ -43,14 +92,14 @@ st.markdown("""
     .main-header h1 {
         font-size: 2.5rem;
         font-weight: 800;
-        color: #1c1c1c;
+        color: #ffffff;
         margin-bottom: 0.5rem;
     }
     
     .highlight { color: #ef4f5f; }
     
     .subtitle {
-        color: #686b78;
+        color: #b0b0b0;
         font-size: 1.1rem;
     }
     
@@ -61,16 +110,17 @@ st.markdown("""
         justify-content: center;
         gap: 2rem;
         padding: 1rem;
-        background: linear-gradient(135deg, #f8f8f8 0%, #fff 100%);
+        background: rgba(255,255,255,0.05);
         border-radius: 12px;
         margin: 1rem 0;
+        border: 1px solid rgba(255,255,255,0.1);
     }
     
     .stat-item {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        color: #686b78;
+        color: #b0b0b0;
     }
     
     .stat-item b {
@@ -79,17 +129,17 @@ st.markdown("""
     }
     
     .form-card {
-        background: white;
+        background: rgba(255,255,255,0.05);
         border-radius: 16px;
         padding: 2rem;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,0.1);
         margin: 1.5rem 0;
     }
     
     .section-title {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #1c1c1c;
+        color: #ffffff;
         margin-bottom: 1rem;
         display: flex;
         align-items: center;
@@ -100,17 +150,18 @@ st.markdown("""
         display: inline-block;
         padding: 0.4rem 1rem;
         margin: 0.25rem;
-        background: #f8f8f8;
-        border: 2px solid #e5e5e5;
+        background: rgba(255,255,255,0.1);
+        border: 2px solid rgba(255,255,255,0.2);
         border-radius: 20px;
         cursor: pointer;
         transition: all 0.2s;
         font-size: 0.9rem;
+        color: #ffffff;
     }
     
     .cuisine-chip:hover {
         border-color: #ef4f5f;
-        background: #fff0f1;
+        background: rgba(239, 79, 95, 0.2);
     }
     
     .cuisine-chip.selected {
@@ -120,10 +171,10 @@ st.markdown("""
     }
     
     .flash-card {
-        background: white;
+        background: rgba(255,255,255,0.05);
         border-radius: 16px;
         padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,0.1);
         margin-bottom: 1rem;
         border-left: 4px solid #ef4f5f;
     }
@@ -138,7 +189,7 @@ st.markdown("""
     .card-header h4 {
         margin: 0;
         font-size: 1.25rem;
-        color: #1c1c1c;
+        color: #ffffff;
     }
     
     .match-score {
@@ -151,7 +202,7 @@ st.markdown("""
     }
     
     .ai-summary {
-        color: #686b78;
+        color: #b0b0b0;
         font-style: italic;
         margin-bottom: 1rem;
         font-size: 0.95rem;
@@ -168,15 +219,16 @@ st.markdown("""
         display: flex;
         align-items: center;
         gap: 0.4rem;
-        color: #686b78;
+        color: #b0b0b0;
         font-size: 0.9rem;
     }
     
     .why-this-box {
-        background: #f8f8f8;
+        background: rgba(0,0,0,0.2);
         border-radius: 12px;
         padding: 1rem;
         margin-top: 1rem;
+        color: #e0e0e0;
     }
     
     .why-this-box b {
@@ -203,13 +255,14 @@ st.markdown("""
     }
     
     .stButton>button:disabled {
-        background: #ccc;
+        background: #555;
         transform: none;
     }
     
     .similar-btn {
-        background: #f8f8f8;
-        border: 2px solid #e5e5e5;
+        background: rgba(255,255,255,0.1);
+        border: 2px solid rgba(255,255,255,0.2);
+        color: #ffffff;
         padding: 0.5rem 1rem;
         border-radius: 8px;
         cursor: pointer;
@@ -219,12 +272,12 @@ st.markdown("""
     
     .similar-btn:hover {
         border-color: #ef4f5f;
-        background: #fff0f1;
+        background: rgba(239, 79, 95, 0.2);
     }
     
     .footer {
         text-align: center;
-        color: #686b78;
+        color: #888;
         font-size: 0.85rem;
         margin-top: 2rem;
         padding: 1rem;
@@ -235,9 +288,22 @@ st.markdown("""
     }
     
     .top-cuisines p {
-        color: #686b78;
+        color: #b0b0b0;
         margin-bottom: 0.75rem;
         font-size: 0.95rem;
+    }
+    
+    /* Streamlit widgets dark theme */
+    .stSelectbox label, .stSlider label {
+        color: #ffffff !important;
+    }
+    
+    .stMarkdown p {
+        color: #ffffff;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        color: #ffffff !important;
     }
 </style>
 """, unsafe_allow_html=True)
