@@ -296,7 +296,7 @@ st.markdown("""
         font-weight: bold;
     }
     
-    /* Rating stepper */
+    /* Rating stepper - matching the image */
     .rating-section {
         margin-bottom: 1.5rem;
     }
@@ -304,23 +304,28 @@ st.markdown("""
     .rating-stepper {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem;
+        background: rgba(255,255,255,0.05);
+        padding: 0.5rem;
+        border-radius: 12px;
+        width: fit-content;
     }
     
     .step-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
         background: #ef4f5f;
         border: none;
         color: white;
-        font-size: 1.2rem;
+        font-size: 1.5rem;
         font-weight: bold;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s;
+        line-height: 1;
     }
     
     .step-btn:hover {
@@ -332,7 +337,7 @@ st.markdown("""
         font-size: 1.5rem;
         font-weight: 700;
         color: white;
-        min-width: 50px;
+        min-width: 60px;
         text-align: center;
     }
     
@@ -433,6 +438,40 @@ st.markdown("""
         font-size: 0.9rem;
     }
     
+    /* Card Actions */
+    .card-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .action-btn {
+        flex: 1;
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.2);
+        background: rgba(255,255,255,0.05);
+        color: #e0e0e0;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
+    
+    .action-btn:hover {
+        border-color: #ef4f5f;
+        background: rgba(239, 79, 95, 0.1);
+    }
+    
+    .action-btn.saved {
+        background: #ef4f5f;
+        border-color: #ef4f5f;
+        color: white;
+    }
+    
     /* Footer */
     .footer {
         text-align: center;
@@ -495,6 +534,9 @@ if 'similar_context' not in st.session_state:
 
 if 'rating' not in st.session_state:
     st.session_state.rating = 4.0
+
+if 'saved_restaurants' not in st.session_state:
+    st.session_state.saved_restaurants = set()
 
 # Zomato Sidebar
 st.markdown("""
@@ -675,12 +717,15 @@ if st.session_state.recommendations:
     if len(st.session_state.recommendations) == 0:
         st.info("No perfect matches found. Try relaxing your filters!")
     else:
-        for rec in st.session_state.recommendations:
+        for idx, rec in enumerate(st.session_state.recommendations):
+            rec_name = rec.get('name', 'Unknown')
+            is_saved = rec_name in st.session_state.saved_restaurants
+            
             with st.container():
                 st.markdown(f"""
                 <div class="flash-card">
                     <div class="card-header">
-                        <h4>{rec.get('name', 'Unknown')}</h4>
+                        <h4>{rec_name}</h4>
                         <div class="match-score">{rec.get('match_score', 0)}% Match</div>
                     </div>
                     <div class="ai-summary">{rec.get('ai_summary', '')}</div>
@@ -699,39 +744,52 @@ if st.session_state.recommendations:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                if not st.session_state.similar_mode:
-                    if st.button(f"🔍 Find Similar", key=f"similar_{rec.get('name', '')}"):
-                        with st.spinner(f"Finding similar restaurants..."):
-                            try:
-                                if not st.session_state.original_recommendations:
-                                    st.session_state.original_recommendations = st.session_state.recommendations.copy()
-                                
-                                ref_restaurant = {
-                                    'name': rec.get('name'),
-                                    'cuisines': rec.get('cuisines'),
-                                    'location': rec.get('location'),
-                                    'rating': float(rec.get('rating', 0)),
-                                    'cost': int(rec.get('cost', 0))
-                                }
-                                
-                                primary_cuisine = ref_restaurant['cuisines'].split(',')[0].strip()
-                                candidates = st.session_state.orchestrator.retrieval_engine.query_restaurants(
-                                    cuisine=primary_cuisine,
-                                    location=ref_restaurant['location'],
-                                    min_rating=max(0.0, ref_restaurant['rating'] - 0.5),
-                                    max_cost=int(ref_restaurant['cost'] * 1.5)
-                                )
-                                
-                                candidates = candidates[candidates['name'] != ref_restaurant['name']]
-                                similar_response = st.session_state.orchestrator.generate_similar_recommendations(ref_restaurant, candidates)
-                                similar_payload = json.loads(similar_response)
-                                
-                                st.session_state.recommendations = similar_payload.get('recommendations', [])
-                                st.session_state.similar_mode = True
-                                st.session_state.similar_context = f"{rec.get('name')} — based on cuisine, price, and rating"
-                                st.rerun()
-                            except Exception as e:
-                                st.error(f"Error finding similar restaurants: {str(e)}")
+                # Action buttons row
+                col_save, col_similar = st.columns(2)
+                
+                with col_save:
+                    save_label = "⭐ Saved" if is_saved else "☆ Save"
+                    if st.button(save_label, key=f"save_{idx}_{rec_name}", use_container_width=True):
+                        if is_saved:
+                            st.session_state.saved_restaurants.discard(rec_name)
+                        else:
+                            st.session_state.saved_restaurants.add(rec_name)
+                        st.rerun()
+                
+                with col_similar:
+                    if not st.session_state.similar_mode:
+                        if st.button("🔍 Similar", key=f"similar_{idx}_{rec_name}", use_container_width=True):
+                            with st.spinner(f"Finding similar restaurants..."):
+                                try:
+                                    if not st.session_state.original_recommendations:
+                                        st.session_state.original_recommendations = st.session_state.recommendations.copy()
+                                    
+                                    ref_restaurant = {
+                                        'name': rec.get('name'),
+                                        'cuisines': rec.get('cuisines'),
+                                        'location': rec.get('location'),
+                                        'rating': float(rec.get('rating', 0)),
+                                        'cost': int(rec.get('cost', 0))
+                                    }
+                                    
+                                    primary_cuisine = ref_restaurant['cuisines'].split(',')[0].strip()
+                                    candidates = st.session_state.orchestrator.retrieval_engine.query_restaurants(
+                                        cuisine=primary_cuisine,
+                                        location=ref_restaurant['location'],
+                                        min_rating=max(0.0, ref_restaurant['rating'] - 0.5),
+                                        max_cost=int(ref_restaurant['cost'] * 1.5)
+                                    )
+                                    
+                                    candidates = candidates[candidates['name'] != ref_restaurant['name']]
+                                    similar_response = st.session_state.orchestrator.generate_similar_recommendations(ref_restaurant, candidates)
+                                    similar_payload = json.loads(similar_response)
+                                    
+                                    st.session_state.recommendations = similar_payload.get('recommendations', [])
+                                    st.session_state.similar_mode = True
+                                    st.session_state.similar_context = f"{rec.get('name')} — based on cuisine, price, and rating"
+                                    st.rerun()
+                                except Exception as e:
+                                    st.error(f"Error finding similar restaurants: {str(e)}")
 
 # Footer
 st.markdown("""
