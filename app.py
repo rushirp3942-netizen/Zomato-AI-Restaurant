@@ -82,47 +82,90 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS - Dark Theme
+# Custom CSS - Matching the UI image exactly
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
     * { font-family: 'Inter', sans-serif; }
     
-    /* Main background */
+    /* Hide default Streamlit header and sidebar */
+    header {visibility: hidden;}
+    .stSidebar {display: none;}
+    
+    /* Main background with gradient */
     .stApp {
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d1f1f 50%, #1a1a1a 100%);
+        min-height: 100vh;
     }
     
+    /* Main content wrapper */
+    .main-wrapper {
+        margin-left: 60px;
+        padding: 2rem 3rem;
+        max-width: 1200px;
+    }
+    
+    /* Zomato Sidebar */
+    .zomato-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        width: 60px;
+        background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 2rem;
+        z-index: 1000;
+    }
+    
+    .zomato-sidebar span {
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1.8;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    /* Header */
     .main-header {
-        text-align: center;
-        padding: 2rem 0;
+        margin-bottom: 1.5rem;
     }
     
     .main-header h1 {
-        font-size: 2.5rem;
+        font-size: 3rem;
         font-weight: 800;
         color: #ffffff;
         margin-bottom: 0.5rem;
+        letter-spacing: -1px;
     }
     
     .highlight { color: #ef4f5f; }
     
     .subtitle {
-        color: #b0b0b0;
+        color: #a0a0a0;
         font-size: 1.1rem;
+        font-weight: 400;
     }
     
-    .city { color: #ef4f5f; font-weight: 600; }
+    .city { 
+        color: #ef4f5f; 
+        font-weight: 600;
+        text-decoration: underline;
+        text-decoration-color: #ef4f5f;
+    }
     
+    /* Stats bar */
     .stats-bar {
-        display: flex;
-        justify-content: center;
-        gap: 2rem;
-        padding: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 0.75rem 1.5rem;
         background: rgba(255,255,255,0.05);
-        border-radius: 12px;
-        margin: 1rem 0;
+        border-radius: 50px;
+        margin-bottom: 2rem;
         border: 1px solid rgba(255,255,255,0.1);
     }
     
@@ -131,55 +174,196 @@ st.markdown("""
         align-items: center;
         gap: 0.5rem;
         color: #b0b0b0;
+        font-size: 0.9rem;
     }
     
     .stat-item b {
         color: #ef4f5f;
-        font-size: 1.2rem;
+        font-size: 1rem;
+        font-weight: 700;
     }
     
-    .form-card {
-        background: rgba(255,255,255,0.05);
-        border-radius: 16px;
-        padding: 2rem;
-        border: 1px solid rgba(255,255,255,0.1);
-        margin: 1.5rem 0;
+    .stat-divider {
+        color: #555;
+        font-weight: 300;
     }
     
-    .section-title {
-        font-size: 1.1rem;
+    /* Top cuisines section */
+    .top-cuisines-section {
+        margin-bottom: 2rem;
+    }
+    
+    .top-cuisines-title {
+        color: #888;
+        font-size: 0.75rem;
         font-weight: 600;
-        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 1px;
         margin-bottom: 1rem;
+    }
+    
+    .cuisine-chips-container {
         display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
+        flex-wrap: wrap;
     }
     
     .cuisine-chip {
-        display: inline-block;
-        padding: 0.4rem 1rem;
-        margin: 0.25rem;
-        background: rgba(255,255,255,0.1);
-        border: 2px solid rgba(255,255,255,0.2);
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.2s;
+        padding: 0.6rem 1.2rem;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 25px;
+        color: #e0e0e0;
         font-size: 0.9rem;
-        color: #ffffff;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
     }
     
     .cuisine-chip:hover {
-        border-color: #ef4f5f;
         background: rgba(239, 79, 95, 0.2);
-    }
-    
-    .cuisine-chip.selected {
-        background: #ef4f5f;
-        color: white;
         border-color: #ef4f5f;
     }
     
+    .cuisine-chip.active {
+        background: #ef4f5f;
+        border-color: #ef4f5f;
+        color: white;
+    }
+    
+    /* Form Card */
+    .form-card {
+        background: rgba(255,255,255,0.03);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .field-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #e0e0e0;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .field-label .icon {
+        color: #ef4f5f;
+    }
+    
+    /* Custom select styling */
+    .stSelectbox > div > div {
+        background: rgba(255,255,255,0.08) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        border-radius: 10px !important;
+        color: white !important;
+    }
+    
+    .stSelectbox > div > div:hover {
+        border-color: #ef4f5f !important;
+    }
+    
+    /* Selected cuisine tags */
+    .selected-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        background: #ef4f5f;
+        border-radius: 20px;
+        color: white;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin: 0.25rem;
+    }
+    
+    .selected-tag .remove-btn {
+        cursor: pointer;
+        font-weight: bold;
+    }
+    
+    /* Rating stepper */
+    .rating-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .rating-stepper {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .step-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: #ef4f5f;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    
+    .step-btn:hover {
+        background: #ff6b7a;
+        transform: scale(1.05);
+    }
+    
+    .rating-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+        min-width: 50px;
+        text-align: center;
+    }
+    
+    /* Submit button */
+    .submit-btn-container {
+        margin-top: 1.5rem;
+    }
+    
+    .stButton > button {
+        background: linear-gradient(135deg, #ef4f5f 0%, #dc2626 100%) !important;
+        color: white !important;
+        border: none !important;
+        padding: 1rem 2rem !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        font-size: 1.1rem !important;
+        width: 100% !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(239, 79, 95, 0.3) !important;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(239, 79, 95, 0.4) !important;
+    }
+    
+    .stButton > button:active {
+        transform: translateY(0) !important;
+    }
+    
+    /* Flash cards */
     .flash-card {
         background: rgba(255,255,255,0.05);
         border-radius: 16px;
@@ -200,6 +384,7 @@ st.markdown("""
         margin: 0;
         font-size: 1.25rem;
         color: #ffffff;
+        font-weight: 700;
     }
     
     .match-score {
@@ -212,7 +397,7 @@ st.markdown("""
     }
     
     .ai-summary {
-        color: #b0b0b0;
+        color: #a0a0a0;
         font-style: italic;
         margin-bottom: 1rem;
         font-size: 0.95rem;
@@ -238,82 +423,42 @@ st.markdown("""
         border-radius: 12px;
         padding: 1rem;
         margin-top: 1rem;
-        color: #e0e0e0;
+        color: #d0d0d0;
     }
     
     .why-this-box b {
         color: #ef4f5f;
         display: block;
         margin-bottom: 0.5rem;
-    }
-    
-    .stButton>button {
-        background: linear-gradient(135deg, #ef4f5f 0%, #ff6b7a 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 1rem;
-        width: 100%;
-        transition: transform 0.2s;
-    }
-    
-    .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(239, 79, 95, 0.4);
-    }
-    
-    .stButton>button:disabled {
-        background: #555;
-        transform: none;
-    }
-    
-    .similar-btn {
-        background: rgba(255,255,255,0.1);
-        border: 2px solid rgba(255,255,255,0.2);
-        color: #ffffff;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        cursor: pointer;
         font-size: 0.9rem;
-        transition: all 0.2s;
     }
     
-    .similar-btn:hover {
-        border-color: #ef4f5f;
-        background: rgba(239, 79, 95, 0.2);
-    }
-    
+    /* Footer */
     .footer {
         text-align: center;
-        color: #888;
-        font-size: 0.85rem;
+        color: #666;
+        font-size: 0.8rem;
         margin-top: 2rem;
         padding: 1rem;
     }
     
-    .top-cuisines {
-        margin: 1.5rem 0;
+    /* Similar header */
+    .similar-header {
+        background: rgba(239, 79, 95, 0.1);
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(239, 79, 95, 0.3);
     }
     
-    .top-cuisines p {
-        color: #b0b0b0;
-        margin-bottom: 0.75rem;
-        font-size: 0.95rem;
-    }
-    
-    /* Streamlit widgets dark theme */
-    .stSelectbox label, .stSlider label {
-        color: #ffffff !important;
-    }
-    
-    .stMarkdown p {
-        color: #ffffff;
-    }
-    
-    h1, h2, h3, h4, h5, h6 {
-        color: #ffffff !important;
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        .main-wrapper {
+            padding: 1rem;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -348,6 +493,24 @@ if 'original_recommendations' not in st.session_state:
 if 'similar_context' not in st.session_state:
     st.session_state.similar_context = None
 
+if 'rating' not in st.session_state:
+    st.session_state.rating = 4.0
+
+# Zomato Sidebar
+st.markdown("""
+<div class="zomato-sidebar">
+    <span>Z</span>
+    <span>O</span>
+    <span>M</span>
+    <span>A</span>
+    <span>T</span>
+    <span>O</span>
+</div>
+""", unsafe_allow_html=True)
+
+# Main Content Wrapper
+st.markdown('<div class="main-wrapper">', unsafe_allow_html=True)
+
 # Header
 st.markdown("""
 <div class="main-header">
@@ -357,120 +520,133 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Stats bar
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    st.markdown("""
-    <div class="stats-bar">
-        <div class="stat-item">📍 <b>94</b> Localities</div>
-        <div style="color: #ddd;">|</div>
-        <div class="stat-item">🍽️ <b>108</b> Cuisines</div>
-    </div>
-    """, unsafe_allow_html=True)
+st.markdown("""
+<div class="stats-bar">
+    <div class="stat-item">📍 <b>94</b> Localities</div>
+    <div class="stat-divider">|</div>
+    <div class="stat-item">🍽️ <b>108</b> Cuisines</div>
+</div>
+""", unsafe_allow_html=True)
 
 # Check initialization
 if not st.session_state.get('initialized', False):
-    st.error(f"Failed to initialize the recommendation engine: {st.session_state.get('init_error', 'Unknown error')}")
+    st.error(f"Failed to initialize: {st.session_state.get('init_error', 'Unknown error')}")
     st.stop()
 
-# Form Card
-with st.container():
-    st.markdown('<div class="form-card">', unsafe_allow_html=True)
-    
-    # Top Cuisines
-    st.markdown('<div class="top-cuisines"><p>Top cuisines in Bangalore</p></div>', unsafe_allow_html=True)
-    
-    # Cuisine chips
-    cols = st.columns(5)
-    for i, cuisine in enumerate(TOP_CUISINES):
-        with cols[i]:
-            is_selected = cuisine in st.session_state.selected_cuisines
-            if st.button(
-                cuisine, 
-                key=f"chip_{cuisine}",
-                type="primary" if is_selected else "secondary",
-                use_container_width=True
-            ):
-                if is_selected:
-                    st.session_state.selected_cuisines.discard(cuisine)
-                else:
-                    st.session_state.selected_cuisines.add(cuisine)
-                st.rerun()
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Form inputs
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown('<div class="section-title">📍 Select Locality *</div>', unsafe_allow_html=True)
-        locality = st.selectbox("", [""] + LOCALITIES, label_visibility="collapsed")
-    
-    with col2:
-        st.markdown('<div class="section-title">💰 Price Range *</div>', unsafe_allow_html=True)
-        price_options = {
-            "": "Select price range...",
-            "cheap": "Budget (Under ₹500)",
-            "moderate": "Mid-range (₹500 - ₹1500)",
-            "expensive": "Premium (Above ₹1500)"
-        }
-        price = st.selectbox("", list(price_options.keys()), format_func=lambda x: price_options[x], label_visibility="collapsed")
-    
-    # Additional cuisines dropdown
-    st.markdown('<div class="section-title">🍜 Additional Cuisines (Optional)</div>', unsafe_allow_html=True)
-    remaining_cuisines = [c for c in ALL_CUISINES if c not in st.session_state.selected_cuisines]
-    additional_cuisine = st.selectbox("Add more cuisines...", [""] + remaining_cuisines, label_visibility="collapsed")
-    if additional_cuisine:
-        st.session_state.selected_cuisines.add(additional_cuisine)
-        st.rerun()
-    
-    # Display selected cuisines
-    if st.session_state.selected_cuisines:
-        st.markdown("**Selected Cuisines:**")
-        selected_cols = st.columns(min(len(st.session_state.selected_cuisines), 5))
-        for i, cuisine in enumerate(st.session_state.selected_cuisines):
-            with selected_cols[i % 5]:
-                if st.button(f"❌ {cuisine}", key=f"remove_{cuisine}", help="Click to remove"):
-                    st.session_state.selected_cuisines.discard(cuisine)
-                    st.rerun()
-    
-    # Rating
-    st.markdown('<div class="section-title">⭐ Minimum Rating *</div>', unsafe_allow_html=True)
-    rating = st.slider("", min_value=0.0, max_value=5.0, value=4.0, step=0.5, label_visibility="collapsed")
-    st.markdown(f"<p style='text-align: center; color: #ef4f5f; font-weight: 600;'>Minimum Rating: {rating}</p>", unsafe_allow_html=True)
-    
-    # Submit button
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Similar mode header
-    if st.session_state.similar_mode and st.session_state.similar_context:
-        st.markdown(f"""
-        <div style="background: #fff0f1; padding: 1rem; border-radius: 12px; margin-bottom: 1rem;">
-            <b>🔍 Similar to:</b> {st.session_state.similar_context}
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("← Back to Original Results", type="secondary"):
-            st.session_state.similar_mode = False
-            st.session_state.recommendations = st.session_state.original_recommendations
-            st.session_state.similar_context = None
+# Top Cuisines Section
+st.markdown('<div class="top-cuisines-section">', unsafe_allow_html=True)
+st.markdown('<div class="top-cuisines-title">Top cuisines in Bangalore</div>', unsafe_allow_html=True)
+
+# Cuisine chips
+chip_cols = st.columns(5)
+for i, cuisine in enumerate(TOP_CUISINES):
+    with chip_cols[i]:
+        is_active = cuisine in st.session_state.selected_cuisines
+        btn_type = "primary" if is_active else "secondary"
+        if st.button(cuisine, key=f"chip_{cuisine}", type=btn_type, use_container_width=True):
+            if is_active:
+                st.session_state.selected_cuisines.discard(cuisine)
+            else:
+                st.session_state.selected_cuisines.add(cuisine)
             st.rerun()
-    
-    get_rec_clicked = st.button("✨ Get Recommendations", type="primary", use_container_width=True)
-    
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Form Card
+st.markdown('<div class="form-card">', unsafe_allow_html=True)
+
+# Form Grid - Row 1: Locality, Price, Cuisines
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.markdown('<div class="form-field">', unsafe_allow_html=True)
+    st.markdown('<div class="field-label"><span class="icon">📍</span> Select Locality *</div>', unsafe_allow_html=True)
+    locality = st.selectbox("Locality", ["Select a locality..."] + LOCALITIES, label_visibility="collapsed")
     st.markdown('</div>', unsafe_allow_html=True)
+
+with col2:
+    st.markdown('<div class="form-field">', unsafe_allow_html=True)
+    st.markdown('<div class="field-label"><span class="icon">💰</span> Price Range *</div>', unsafe_allow_html=True)
+    price_options = {
+        "": "Select price range...",
+        "cheap": "Budget (Under ₹500)",
+        "moderate": "Mid-range (₹500 - ₹1500)",
+        "expensive": "Premium (Above ₹1500)"
+    }
+    price = st.selectbox("Price", list(price_options.keys()), format_func=lambda x: price_options[x], label_visibility="collapsed")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with col3:
+    st.markdown('<div class="form-field">', unsafe_allow_html=True)
+    st.markdown('<div class="field-label"><span class="icon">🍜</span> Cuisines (Multi-select) *</div>', unsafe_allow_html=True)
+    
+    # Display selected cuisines as tags
+    if st.session_state.selected_cuisines:
+        tags_html = ""
+        for cuisine in st.session_state.selected_cuisines:
+            tags_html += f'<span class="selected-tag">{cuisine} <span class="remove-btn" onclick="window.location.reload()">×</span></span>'
+        st.markdown(tags_html, unsafe_allow_html=True)
+    
+    # Dropdown for additional cuisines
+    remaining = [c for c in ALL_CUISINES if c not in st.session_state.selected_cuisines]
+    selected = st.selectbox("Add cuisine", ["Add a cuisine..."] + remaining, label_visibility="collapsed")
+    if selected != "Add a cuisine...":
+        st.session_state.selected_cuisines.add(selected)
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# Rating Section with Stepper
+st.markdown('<div class="rating-section">', unsafe_allow_html=True)
+st.markdown('<div class="field-label"><span class="icon">⭐</span> Ratings *</div>', unsafe_allow_html=True)
+
+rating_col1, rating_col2, rating_col3 = st.columns([1, 2, 10])
+with rating_col1:
+    if st.button("−", key="minus_rating"):
+        if st.session_state.rating > 0:
+            st.session_state.rating = round(st.session_state.rating - 0.5, 1)
+            st.rerun()
+
+with rating_col2:
+    st.markdown(f'<div class="rating-value">{st.session_state.rating}</div>', unsafe_allow_html=True)
+
+with rating_col3:
+    if st.button("+", key="plus_rating"):
+        if st.session_state.rating < 5:
+            st.session_state.rating = round(st.session_state.rating + 0.5, 1)
+            st.rerun()
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Submit Button
+st.markdown('<div class="submit-btn-container">', unsafe_allow_html=True)
+get_rec_clicked = st.button("✨ Get Recommendations", type="primary", use_container_width=True)
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)  # End form-card
+
+# Similar mode header
+if st.session_state.similar_mode and st.session_state.similar_context:
+    st.markdown(f"""
+    <div class="similar-header">
+        <b>🔍 Similar to:</b> {st.session_state.similar_context}
+    </div>
+    """, unsafe_allow_html=True)
+    if st.button("← Back to Original Results", type="secondary"):
+        st.session_state.similar_mode = False
+        st.session_state.recommendations = st.session_state.original_recommendations
+        st.session_state.similar_context = None
+        st.rerun()
 
 # Handle recommendations
 if get_rec_clicked:
-    if not locality:
+    if locality == "Select a locality...":
         st.error("Please select a locality!")
     else:
         with st.spinner("🍽️ Scanning 51,717 restaurants..."):
-            # Build query
             cuisines_str = ", ".join(st.session_state.selected_cuisines) if st.session_state.selected_cuisines else ""
             query_parts = []
             if cuisines_str:
                 query_parts.append(f"{cuisines_str} food")
             query_parts.append(f"in {locality}")
-            query_parts.append(f"with a minimum rating of {rating}")
+            query_parts.append(f"with a minimum rating of {st.session_state.rating}")
             
             if price == 'cheap':
                 query_parts.append("under 500 rupees")
@@ -523,16 +699,13 @@ if st.session_state.recommendations:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # Similar button
                 if not st.session_state.similar_mode:
-                    if st.button(f"🔍 Find Similar to {rec.get('name', '')}", key=f"similar_{rec.get('name', '')}"):
-                        with st.spinner(f"Finding restaurants similar to {rec.get('name')}..."):
+                    if st.button(f"🔍 Find Similar", key=f"similar_{rec.get('name', '')}"):
+                        with st.spinner(f"Finding similar restaurants..."):
                             try:
-                                # Save original results
                                 if not st.session_state.original_recommendations:
                                     st.session_state.original_recommendations = st.session_state.recommendations.copy()
                                 
-                                # Get similar restaurants
                                 ref_restaurant = {
                                     'name': rec.get('name'),
                                     'cuisines': rec.get('cuisines'),
@@ -549,10 +722,7 @@ if st.session_state.recommendations:
                                     max_cost=int(ref_restaurant['cost'] * 1.5)
                                 )
                                 
-                                # Filter out original
                                 candidates = candidates[candidates['name'] != ref_restaurant['name']]
-                                
-                                # Generate similar recommendations
                                 similar_response = st.session_state.orchestrator.generate_similar_recommendations(ref_restaurant, candidates)
                                 similar_payload = json.loads(similar_response)
                                 
@@ -570,3 +740,5 @@ st.markdown("""
     Powered by Groq LLM • Zomato Bangalore Dataset (51k+ restaurants)
 </div>
 """, unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)  # End main-wrapper
