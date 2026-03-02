@@ -1,0 +1,594 @@
+:root {
+    --zomato-red: #E23744;
+    --bg-dark: #1C1C1C;
+    --bg-card: rgba(35, 35, 35, 0.8);
+    --text-white: #FFFFFF;
+    --text-gray: #9C9C9C;
+    --accent-gold: #FFBA00;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Inter:wght@300;400;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background: radial-gradient(circle at top right, #320a0a, var(--bg-dark), #000000);
+    color: var(--text-white);
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+}
+
+/* Vertical Zomato Branding */
+.zomato-sidebar {
+    width: 60px;
+    background: linear-gradient(to bottom, var(--zomato-red), #8b151d);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 40px;
+    gap: 30px;
+    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+}
+
+.zomato-sidebar span {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: 1.8rem;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    letter-spacing: 5px;
+}
+
+/* Main Content Area */
+.main-wrapper {
+    flex: 1;
+    margin-left: 60px;
+    padding: 60px 5%;
+    max-width: 1200px;
+}
+
+header {
+    margin-bottom: 50px;
+}
+
+header h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 15px;
+}
+
+header h1 .highlight {
+    color: var(--zomato-red);
+    background: linear-gradient(to right, #ffffff, #888);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+header p {
+    font-size: 1.2rem;
+    color: var(--text-gray);
+    letter-spacing: 1px;
+}
+
+header .city {
+    color: var(--text-white);
+    font-weight: 600;
+    border-bottom: 2px solid var(--zomato-red);
+}
+
+/* Dashboard Stats */
+.stats-bar {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 40px;
+    background: var(--bg-card);
+    padding: 20px 30px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    width: fit-content;
+}
+
+.stats-bar span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+.stats-bar b {
+    color: var(--text-white);
+    font-size: 1.1rem;
+}
+
+.stats-bar i {
+    color: var(--zomato-red);
+}
+
+/* Top Cuisines Chips */
+.top-cuisines {
+    margin-bottom: 40px;
+}
+
+.top-cuisines p {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-gray);
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+
+.chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.chip {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chip:hover {
+    background: var(--zomato-red);
+    transform: translateY(-3px);
+}
+
+.chip.active {
+    background: var(--zomato-red);
+    box-shadow: 0 5px 15px rgba(226, 55, 68, 0.4);
+}
+
+/* User Preferences Form */
+.form-card {
+    background: var(--bg-card);
+    padding: 40px;
+    border-radius: 25px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 50px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.input-block label {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-white);
+}
+
+.input-block label i {
+    margin-right: 10px;
+    color: var(--zomato-red);
+}
+
+.input-field {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 20px;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    transition: border 0.3s;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--zomato-red);
+}
+
+/* Selected Tags Container */
+.selected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+    min-height: 0;
+}
+
+.tag {
+    background: var(--zomato-red);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: scaleIn 0.2s ease-out;
+}
+
+.tag i {
+    cursor: pointer;
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.tag i:hover {
+    opacity: 1;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Custom Scrollbar */
+select.input-field {
+    color: var(--text-white);
+    background-color: #2d2d2d;
+}
+
+select.input-field option {
+    background: var(--bg-dark);
+    color: white;
+}
+
+/* Scrollbar for select */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--zomato-red);
+}
+
+/* Rating Stepper */
+.rating-stepper {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.step-btn {
+    background: var(--zomato-red);
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.step-btn:hover {
+    transform: scale(1.1);
+    background: #ff4757;
+}
+
+.rating-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    min-width: 50px;
+    text-align: center;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    background: var(--zomato-red);
+    color: white;
+    border: none;
+    padding: 20px;
+    border-radius: 15px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(226, 55, 68, 0.3);
+    transition: 0.3s;
+}
+
+.submit-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(226, 55, 68, 0.5);
+}
+
+/* Flash Card Results Grid */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.flash-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.flash-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--zomato-red);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+/* Match Score Badge */
+.match-score {
+    background: rgba(226, 55, 68, 0.1);
+    color: var(--zomato-red);
+    padding: 4px 10px;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    border: 1px solid var(--zomato-red);
+    white-space: nowrap;
+    height: fit-content;
+}
+
+.header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 5px;
+}
+
+.card-header h4 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    margin: 0;
+    line-height: 1.2;
+    color: var(--text-white);
+}
+
+.ai-summary-line {
+    font-size: 0.9rem;
+    color: var(--accent-gold);
+    font-weight: 600;
+    font-style: italic;
+    margin-bottom: 5px;
+}
+
+.card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: var(--text-gray);
+    margin-bottom: 5px;
+}
+
+.card-meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.card-meta i {
+    color: var(--zomato-red);
+}
+
+/* Why This Recommendation Section */
+.why-this-box {
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 3px solid var(--zomato-red);
+    padding: 12px 15px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #dfdfdf;
+}
+
+.why-this-box b {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+    color: var(--text-white);
+}
+
+/* Quick Actions */
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.action-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.action-btn:hover {
+    background: var(--zomato-red);
+    border-color: var(--zomato-red);
+}
+
+.action-btn.saved {
+    backdrop-filter: none;
+}
+
+/* Similarity View Header */
+.similarity-header {
+    background: rgba(226, 55, 68, 0.1);
+    border-radius: 15px;
+    padding: 15px 25px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(226, 55, 68, 0.2);
+    animation: fadeIn 0.4s ease;
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.back-btn {
+    background: var(--zomato-red);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.back-btn:hover {
+    transform: translateX(-5px);
+    background: #ff4757;
+}
+
+#similarityContext {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-white);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Loader */
+.loading-overlay {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin: 40px 0;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--zomato-red);
+    border-radius: 50%;
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+footer {
+    text-align: center;
+    padding-bottom: 50px;
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .main-wrapper {
+        margin-left: 0;
+        padding-top: 100px;
+    }
+
+    .zomato-sidebar {
+        width: 100%;
+        height: 60px;
+        flex-direction: row;
+        justify-content: center;
+        padding-top: 0;
+        gap: 15px;
+    }
+
+    .zomato-sidebar span {
+        writing-mode: horizontal-tb;
+        letter-spacing: 2px;
+        font-size: 1.2rem;
+    }
+
+    header h1 {
+        font-size: 2.5rem;
+    }
+}

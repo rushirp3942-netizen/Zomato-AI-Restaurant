@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zomato AI Recommender</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="zomato-sidebar">
+        <span>Z</span>
+        <span>O</span>
+        <span>M</span>
+        <span>A</span>
+        <span>T</span>
+        <span>O</span>
+    </div>
+
+    <div class="main-wrapper">
+        <header>
+            <h1><span class="highlight">Zomato</span> AI Recommender</h1>
+            <p>Helping you find the best places to eat in <span class="city">Bangalore</span> city</p>
+        </header>
+
+        <div class="stats-bar">
+            <span><i class="fa-solid fa-location-dot"></i><b>94</b> Localities</span>
+            <span>|</span>
+            <span><i class="fa-solid fa-utensils"></i><b>108</b> Cuisines</span>
+        </div>
+
+        <div class="top-cuisines">
+            <p>Top cuisines in Bangalore</p>
+            <div class="chips-container" id="cuisineChips">
+                <div class="chip" data-val="North Indian">North Indian</div>
+                <div class="chip" data-val="Chinese">Chinese</div>
+                <div class="chip" data-val="South Indian">South Indian</div>
+                <div class="chip" data-val="Fast Food">Fast Food</div>
+                <div class="chip" data-val="Biryani">Biryani</div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="form-grid">
+                <!-- Locality -->
+                <div class="input-block">
+                    <label><i class="fa-solid fa-location-crosshairs"></i> Select Locality *</label>
+                    <select id="localitySelect" class="input-field">
+                        <option value="">Select a locality...</option>
+                        <!-- Localities will be populated via JS -->
+                    </select>
+                </div>
+
+                <!-- Price Range -->
+                <div class="input-block">
+                    <label><i class="fa-solid fa-money-bill-wave"></i> Price Range *</label>
+                    <select id="priceSelect" class="input-field">
+                        <option value="">Select price range...</option>
+                        <option value="cheap">Budget (Under 500)</option>
+                        <option value="moderate">Mid-range (500 - 1500)</option>
+                        <option value="expensive">Premium (Above 1500)</option>
+                    </select>
+                </div>
+
+                <!-- Cuisines -->
+                <div class="input-block">
+                    <label><i class="fa-solid fa-bowl-food"></i> Cuisines (Multi-select) *</label>
+                    <div id="selectedCuisines" class="selected-tags"></div>
+                    <select id="cuisineSelect" class="input-field">
+                        <option value="">Add a cuisine...</option>
+                        <!-- Cuisines will be populated via JS -->
+                    </select>
+                </div>
+
+                <!-- Ratings -->
+                <div class="input-block">
+                    <label><i class="fa-solid fa-star"></i> Ratings *</label>
+                    <div class="rating-stepper">
+                        <button class="step-btn" id="minusRating"><i class="fa-solid fa-minus"></i></button>
+                        <div class="rating-value" id="ratingDisplay">4.0</div>
+                        <button class="step-btn" id="plusRating"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="submit-btn" id="recommendBtn">
+                Get Recommendations <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </button>
+        </div>
+
+        <div id="loader" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>Scanning 51,717 restaurants...</p>
+        </div>
+
+        <div id="resultBox" class="result-box">
+            <div id="similarityHeader" class="similarity-header" style="display: none;">
+                <div class="header-info">
+                    <button id="backBtn" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                    <span id="similarityContext">Similar to ...</span>
+                </div>
+            </div>
+            <div id="resultsGrid" class="results-grid">
+                <!-- Flash Cards will be injected here -->
+            </div>
+        </div>
+
+        <footer>
+            Note: Ratings are on a scale of 0-5. Price is for two people.
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
