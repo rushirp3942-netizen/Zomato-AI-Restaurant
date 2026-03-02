@@ -307,27 +307,32 @@ st.markdown("""
         gap: 1rem;
     }
     
-    /* Style the rating buttons */
+    /* Style the rating buttons - smaller size with clear white icons */
     div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) .stButton > button,
     div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(3) .stButton > button {
-        width: 60px !important;
-        height: 45px !important;
-        border-radius: 12px !important;
+        width: 45px !important;
+        height: 35px !important;
+        border-radius: 10px !important;
         background: linear-gradient(135deg, #ef4f5f 0%, #dc2626 100%) !important;
-        border: none !important;
-        color: white !important;
-        font-size: 1.8rem !important;
-        font-weight: 300 !important;
+        border: 2px solid rgba(255,255,255,0.3) !important;
+        color: #ffffff !important;
+        font-size: 1.5rem !important;
+        font-weight: 400 !important;
         padding: 0 !important;
-        min-width: 60px !important;
-        box-shadow: 0 4px 10px rgba(239, 79, 95, 0.3) !important;
+        min-width: 45px !important;
+        box-shadow: 0 3px 8px rgba(239, 79, 95, 0.4), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     
     div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) .stButton > button:hover,
     div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(3) .stButton > button:hover {
         background: linear-gradient(135deg, #ff6b7a 0%, #ef4f5f 100%) !important;
         transform: translateY(-2px) !important;
-        box-shadow: 0 6px 15px rgba(239, 79, 95, 0.4) !important;
+        box-shadow: 0 5px 12px rgba(239, 79, 95, 0.5), inset 0 1px 0 rgba(255,255,255,0.4) !important;
+        border-color: rgba(255,255,255,0.5) !important;
     }
     
     /* Submit button */
@@ -660,7 +665,7 @@ with col1:
             st.rerun()
 
 with col2:
-    st.markdown(f'<div style="text-align: center; font-size: 1.8rem; font-weight: 700; color: white; padding-top: 0.5rem;">{st.session_state.rating}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="text-align: center; font-size: 1.5rem; font-weight: 700; color: white; line-height: 35px;">{st.session_state.rating}</div>', unsafe_allow_html=True)
 
 with col3:
     if st.button("+", key="plus_rating"):
