@@ -265,16 +265,34 @@ st.markdown("""
         color: #ef4f5f;
     }
     
-    /* Custom select styling */
+    /* Custom select styling - smaller width */
     .stSelectbox > div > div {
         background: rgba(255,255,255,0.08) !important;
         border: 1px solid rgba(255,255,255,0.15) !important;
         border-radius: 10px !important;
         color: white !important;
+        max-width: 100% !important;
     }
     
     .stSelectbox > div > div:hover {
         border-color: #ef4f5f !important;
+    }
+    
+    /* Form grid columns - responsive sizing */
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .stSelectbox > div > div {
+            font-size: 0.9rem !important;
+        }
+    }
+    
+    @media (min-width: 769px) {
+        .form-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        }
     }
     
     /* Selected cuisine tags */
@@ -310,21 +328,23 @@ st.markdown("""
     /* Style the rating buttons - smaller size with clear white icons */
     div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) .stButton > button,
     div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(3) .stButton > button {
-        width: 45px !important;
-        height: 35px !important;
+        width: 50px !important;
+        height: 40px !important;
         border-radius: 10px !important;
         background: linear-gradient(135deg, #ef4f5f 0%, #dc2626 100%) !important;
-        border: 2px solid rgba(255,255,255,0.3) !important;
+        border: 2px solid rgba(255,255,255,0.4) !important;
         color: #ffffff !important;
-        font-size: 1.5rem !important;
-        font-weight: 400 !important;
+        font-size: 1.8rem !important;
+        font-weight: 500 !important;
         padding: 0 !important;
-        min-width: 45px !important;
+        min-width: 50px !important;
+        max-width: 50px !important;
         box-shadow: 0 3px 8px rgba(239, 79, 95, 0.4), inset 0 1px 0 rgba(255,255,255,0.3) !important;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        overflow: visible !important;
     }
     
     div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) .stButton > button:hover,
@@ -332,7 +352,19 @@ st.markdown("""
         background: linear-gradient(135deg, #ff6b7a 0%, #ef4f5f 100%) !important;
         transform: translateY(-2px) !important;
         box-shadow: 0 5px 12px rgba(239, 79, 95, 0.5), inset 0 1px 0 rgba(255,255,255,0.4) !important;
-        border-color: rgba(255,255,255,0.5) !important;
+        border-color: rgba(255,255,255,0.6) !important;
+    }
+    
+    /* Ensure rating buttons are visible and not cut off */
+    div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1),
+    div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(3) {
+        min-width: 60px !important;
+        flex: 0 0 auto !important;
+    }
+    
+    div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(2) {
+        flex: 0 0 auto !important;
+        min-width: 80px !important;
     }
     
     /* Submit button */
@@ -665,7 +697,7 @@ with col1:
             st.rerun()
 
 with col2:
-    st.markdown(f'<div style="text-align: center; font-size: 1.5rem; font-weight: 700; color: white; line-height: 35px;">{st.session_state.rating}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="text-align: center; font-size: 1.6rem; font-weight: 700; color: white; line-height: 40px; min-width: 60px;">{st.session_state.rating}</div>', unsafe_allow_html=True)
 
 with col3:
     if st.button("+", key="plus_rating"):
