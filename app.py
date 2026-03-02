@@ -55,6 +55,16 @@ def initialize_database():
         except:
             pass
     
+    # Download from Hugging Face if no local database exists
+    try:
+        from phase1_ingestion.ingest_data import download_and_clean_data, save_to_sqlite
+        df = download_and_clean_data()
+        if df is not None:
+            save_to_sqlite(df, db_path)
+            return db_path
+    except Exception as e:
+        st.error(f"Failed to download dataset: {e}")
+    
     return db_path
 
 # Initialize database
