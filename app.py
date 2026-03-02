@@ -296,7 +296,7 @@ st.markdown("""
         font-weight: bold;
     }
     
-    /* Rating stepper - matching the image */
+    /* Rating stepper - matching the image exactly */
     .rating-section {
         margin-bottom: 1.5rem;
     }
@@ -304,40 +304,38 @@ st.markdown("""
     .rating-stepper {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        background: rgba(255,255,255,0.05);
-        padding: 0.5rem;
-        border-radius: 12px;
-        width: fit-content;
+        gap: 1rem;
     }
     
-    .step-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        background: #ef4f5f;
+    .step-btn-minus, .step-btn-plus {
+        width: 60px;
+        height: 45px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #ef4f5f 0%, #dc2626 100%);
         border: none;
         color: white;
-        font-size: 1.5rem;
-        font-weight: bold;
+        font-size: 1.8rem;
+        font-weight: 300;
         cursor: pointer;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s;
         line-height: 1;
+        box-shadow: 0 4px 10px rgba(239, 79, 95, 0.3);
     }
     
-    .step-btn:hover {
-        background: #ff6b7a;
-        transform: scale(1.05);
+    .step-btn-minus:hover, .step-btn-plus:hover {
+        background: linear-gradient(135deg, #ff6b7a 0%, #ef4f5f 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(239, 79, 95, 0.4);
     }
     
     .rating-value {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         font-weight: 700;
         color: white;
-        min-width: 60px;
+        min-width: 80px;
         text-align: center;
     }
     
@@ -368,14 +366,30 @@ st.markdown("""
         transform: translateY(0) !important;
     }
     
-    /* Flash cards */
+    /* Recommendations Grid */
+    .recommendations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    /* Flash cards - Vertical Layout */
     .flash-card {
         background: rgba(255,255,255,0.05);
         border-radius: 16px;
         padding: 1.5rem;
         border: 1px solid rgba(255,255,255,0.1);
-        margin-bottom: 1rem;
         border-left: 4px solid #ef4f5f;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .flash-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
     }
     
     .card-header {
@@ -390,6 +404,7 @@ st.markdown("""
         font-size: 1.25rem;
         color: #ffffff;
         font-weight: 700;
+        line-height: 1.3;
     }
     
     .match-score {
@@ -399,6 +414,7 @@ st.markdown("""
         border-radius: 20px;
         font-weight: 600;
         font-size: 0.85rem;
+        white-space: nowrap;
     }
     
     .ai-summary {
@@ -406,13 +422,14 @@ st.markdown("""
         font-style: italic;
         margin-bottom: 1rem;
         font-size: 0.95rem;
+        line-height: 1.4;
     }
     
     .card-meta {
         display: flex;
-        gap: 1.5rem;
+        flex-direction: column;
+        gap: 0.5rem;
         margin-bottom: 0.75rem;
-        flex-wrap: wrap;
     }
     
     .card-meta span {
@@ -427,8 +444,11 @@ st.markdown("""
         background: rgba(0,0,0,0.2);
         border-radius: 12px;
         padding: 1rem;
-        margin-top: 1rem;
+        margin-top: auto;
+        margin-bottom: 1rem;
         color: #d0d0d0;
+        font-size: 0.9rem;
+        line-height: 1.5;
     }
     
     .why-this-box b {
@@ -640,17 +660,24 @@ with col3:
 st.markdown('<div class="rating-section">', unsafe_allow_html=True)
 st.markdown('<div class="field-label"><span class="icon">⭐</span> Ratings *</div>', unsafe_allow_html=True)
 
-rating_col1, rating_col2, rating_col3 = st.columns([1, 2, 10])
-with rating_col1:
+# Use HTML/CSS for the stepper to match the image exactly
+stepper_html = f"""
+<div class="rating-stepper">
+    <button class="step-btn-minus" onclick="window.parent.document.querySelector('button[kind=secondary]').click()">−</button>
+    <div class="rating-value">{st.session_state.rating}</div>
+    <button class="step-btn-plus" onclick="window.parent.document.querySelectorAll('button[kind=secondary]')[1].click()">+</button>
+</div>
+"""
+st.markdown(stepper_html, unsafe_allow_html=True)
+
+# Hidden Streamlit buttons for functionality
+col1, col2, col3 = st.columns([1, 3, 10])
+with col1:
     if st.button("−", key="minus_rating"):
         if st.session_state.rating > 0:
             st.session_state.rating = round(st.session_state.rating - 0.5, 1)
             st.rerun()
-
-with rating_col2:
-    st.markdown(f'<div class="rating-value">{st.session_state.rating}</div>', unsafe_allow_html=True)
-
-with rating_col3:
+with col3:
     if st.button("+", key="plus_rating"):
         if st.session_state.rating < 5:
             st.session_state.rating = round(st.session_state.rating + 0.5, 1)
@@ -717,11 +744,15 @@ if st.session_state.recommendations:
     if len(st.session_state.recommendations) == 0:
         st.info("No perfect matches found. Try relaxing your filters!")
     else:
+        # Create grid layout for cards
+        num_cards = len(st.session_state.recommendations)
+        cols = st.columns(min(num_cards, 3))  # Max 3 cards per row
+        
         for idx, rec in enumerate(st.session_state.recommendations):
             rec_name = rec.get('name', 'Unknown')
             is_saved = rec_name in st.session_state.saved_restaurants
             
-            with st.container():
+            with cols[idx % 3]:
                 st.markdown(f"""
                 <div class="flash-card">
                     <div class="card-header">
@@ -733,8 +764,6 @@ if st.session_state.recommendations:
                         <span>⭐ {rec.get('rating', 'N/A')}</span>
                         <span>💰 ₹{rec.get('cost', 'N/A')} for two</span>
                         <span>📍 {rec.get('location', 'N/A')}</span>
-                    </div>
-                    <div class="card-meta">
                         <span>🍽️ {rec.get('cuisines', 'N/A')}</span>
                     </div>
                     <div class="why-this-box">
@@ -745,9 +774,9 @@ if st.session_state.recommendations:
                 """, unsafe_allow_html=True)
                 
                 # Action buttons row
-                col_save, col_similar = st.columns(2)
+                btn_col1, btn_col2 = st.columns(2)
                 
-                with col_save:
+                with btn_col1:
                     save_label = "⭐ Saved" if is_saved else "☆ Save"
                     if st.button(save_label, key=f"save_{idx}_{rec_name}", use_container_width=True):
                         if is_saved:
@@ -756,7 +785,7 @@ if st.session_state.recommendations:
                             st.session_state.saved_restaurants.add(rec_name)
                         st.rerun()
                 
-                with col_similar:
+                with btn_col2:
                     if not st.session_state.similar_mode:
                         if st.button("🔍 Similar", key=f"similar_{idx}_{rec_name}", use_container_width=True):
                             with st.spinner(f"Finding similar restaurants..."):
