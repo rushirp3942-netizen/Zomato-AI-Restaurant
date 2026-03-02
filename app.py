@@ -307,36 +307,27 @@ st.markdown("""
         gap: 1rem;
     }
     
-    .step-btn-minus, .step-btn-plus {
-        width: 60px;
-        height: 45px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #ef4f5f 0%, #dc2626 100%);
-        border: none;
-        color: white;
-        font-size: 1.8rem;
-        font-weight: 300;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-        line-height: 1;
-        box-shadow: 0 4px 10px rgba(239, 79, 95, 0.3);
+    /* Style the rating buttons */
+    div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) .stButton > button,
+    div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(3) .stButton > button {
+        width: 60px !important;
+        height: 45px !important;
+        border-radius: 12px !important;
+        background: linear-gradient(135deg, #ef4f5f 0%, #dc2626 100%) !important;
+        border: none !important;
+        color: white !important;
+        font-size: 1.8rem !important;
+        font-weight: 300 !important;
+        padding: 0 !important;
+        min-width: 60px !important;
+        box-shadow: 0 4px 10px rgba(239, 79, 95, 0.3) !important;
     }
     
-    .step-btn-minus:hover, .step-btn-plus:hover {
-        background: linear-gradient(135deg, #ff6b7a 0%, #ef4f5f 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(239, 79, 95, 0.4);
-    }
-    
-    .rating-value {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: white;
-        min-width: 80px;
-        text-align: center;
+    div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(1) .stButton > button:hover,
+    div[data-testid="stHorizontalBlock"] div[data-testid="column"]:nth-child(3) .stButton > button:hover {
+        background: linear-gradient(135deg, #ff6b7a 0%, #ef4f5f 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 15px rgba(239, 79, 95, 0.4) !important;
     }
     
     /* Submit button */
@@ -660,23 +651,17 @@ with col3:
 st.markdown('<div class="rating-section">', unsafe_allow_html=True)
 st.markdown('<div class="field-label"><span class="icon">⭐</span> Ratings *</div>', unsafe_allow_html=True)
 
-# Use HTML/CSS for the stepper to match the image exactly
-stepper_html = f"""
-<div class="rating-stepper">
-    <button class="step-btn-minus" onclick="window.parent.document.querySelector('button[kind=secondary]').click()">−</button>
-    <div class="rating-value">{st.session_state.rating}</div>
-    <button class="step-btn-plus" onclick="window.parent.document.querySelectorAll('button[kind=secondary]')[1].click()">+</button>
-</div>
-"""
-st.markdown(stepper_html, unsafe_allow_html=True)
-
-# Hidden Streamlit buttons for functionality
-col1, col2, col3 = st.columns([1, 3, 10])
+# Styled stepper buttons using Streamlit columns
+col1, col2, col3 = st.columns([1, 1.5, 1])
 with col1:
     if st.button("−", key="minus_rating"):
         if st.session_state.rating > 0:
             st.session_state.rating = round(st.session_state.rating - 0.5, 1)
             st.rerun()
+
+with col2:
+    st.markdown(f'<div style="text-align: center; font-size: 1.8rem; font-weight: 700; color: white; padding-top: 0.5rem;">{st.session_state.rating}</div>', unsafe_allow_html=True)
+
 with col3:
     if st.button("+", key="plus_rating"):
         if st.session_state.rating < 5:
