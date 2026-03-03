@@ -328,53 +328,57 @@ st.markdown("""
         gap: 1rem;
     }
     
-    /* Rating stepper - Ultra specific targeting */
+    /* Rating stepper - Compact design matching reference image */
     .rating-section [data-testid="stHorizontalBlock"] {
-        gap: 8px !important;
+        gap: 4px !important;
         align-items: center !important;
-        width: fit-content !important;
+        width: auto !important;
+        display: inline-flex !important;
     }
     
-    /* Target rating buttons by their data-testid attribute containing the key */
+    /* Compact rating buttons */
     button[data-testid^="stBaseButton-rating_minus_unique"],
     button[data-testid^="stBaseButton-rating_plus_unique"] {
-        width: 48px !important;
-        height: 38px !important;
-        min-width: 48px !important;
-        max-width: 48px !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        max-width: 36px !important;
         border-radius: 8px !important;
         background: linear-gradient(135deg, #ef4f5f 0%, #dc2626 100%) !important;
-        border: 2px solid rgba(255,255,255,0.8) !important;
+        border: 1.5px solid rgba(255,255,255,0.6) !important;
         color: #ffffff !important;
-        font-size: 22px !important;
-        font-weight: 700 !important;
+        font-size: 18px !important;
+        font-weight: 600 !important;
         padding: 0 !important;
         margin: 0 !important;
-        box-shadow: 0 4px 12px rgba(239, 79, 95, 0.4), inset 0 1px 0 rgba(255,255,255,0.3) !important;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
+        box-shadow: 0 2px 8px rgba(239, 79, 95, 0.3) !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.4) !important;
         line-height: 1 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        flex-shrink: 0 !important;
     }
     
     button[data-testid^="stBaseButton-rating_minus_unique"]:hover,
     button[data-testid^="stBaseButton-rating_plus_unique"]:hover {
         background: linear-gradient(135deg, #ff6b7a 0%, #ef4f5f 100%) !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 16px rgba(239, 79, 95, 0.5), inset 0 1px 0 rgba(255,255,255,0.4) !important;
-        border-color: rgba(255,255,255,1) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 3px 10px rgba(239, 79, 95, 0.4) !important;
+        border-color: rgba(255,255,255,0.9) !important;
     }
     
-    /* Rating display value */
+    /* Compact rating display value */
     .rating-display-value {
-        font-size: 24px !important;
+        font-size: 20px !important;
         font-weight: 700 !important;
         color: #ffffff !important;
         text-align: center !important;
-        min-width: 50px !important;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
-        line-height: 38px !important;
+        min-width: 40px !important;
+        padding: 0 4px !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+        line-height: 36px !important;
+        flex-shrink: 0 !important;
     }
     
     /* Submit button */
@@ -701,8 +705,8 @@ st.markdown('<div class="field-label"><span class="icon">⭐</span> Ratings *</d
 # Create a container for the stepper
 stepper_container = st.container()
 with stepper_container:
-    # Use minimal gap columns
-    minus_col, val_col, plus_col = st.columns([1, 1.2, 1])
+    # Compact columns - tight layout
+    minus_col, val_col, plus_col = st.columns([0.8, 1, 0.8])
     
     with minus_col:
         minus_clicked = st.button(
