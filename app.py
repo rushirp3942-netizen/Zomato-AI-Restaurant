@@ -328,57 +328,35 @@ st.markdown("""
         gap: 1rem;
     }
     
-    /* Rating stepper container */
-    .rating-stepper-container {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: 12px;
-        margin-top: 8px;
+    /* Rating stepper - Style Streamlit buttons within rating section */
+    .rating-section [data-testid="stHorizontalBlock"] {
+        gap: 0.5rem !important;
+        align-items: center !important;
     }
     
-    /* Custom rating buttons */
-    .rating-btn {
-        width: 50px;
-        height: 40px;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #ef4f5f 0%, #dc2626 100%);
-        border: 2px solid rgba(255,255,255,0.7);
-        color: #ffffff;
-        font-size: 24px;
-        font-weight: bold;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 12px rgba(239, 79, 95, 0.4), inset 0 1px 0 rgba(255,255,255,0.3);
-        text-shadow: 0 2px 4px rgba(0,0,0,0.4);
-        transition: all 0.2s ease;
-        line-height: 1;
-        padding: 0;
-        margin: 0;
+    /* Target buttons in the rating section specifically */
+    .rating-section [data-testid="stHorizontalBlock"] [data-testid="column"] .stButton > button {
+        width: 50px !important;
+        height: 40px !important;
+        min-width: 50px !important;
+        max-width: 50px !important;
+        border-radius: 10px !important;
+        background: linear-gradient(135deg, #ef4f5f 0%, #dc2626 100%) !important;
+        border: 2px solid rgba(255,255,255,0.7) !important;
+        color: #ffffff !important;
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        padding: 0 !important;
+        box-shadow: 0 4px 12px rgba(239, 79, 95, 0.4), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
+        line-height: 1 !important;
     }
     
-    .rating-btn:hover {
-        background: linear-gradient(135deg, #ff6b7a 0%, #ef4f5f 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(239, 79, 95, 0.5), inset 0 1px 0 rgba(255,255,255,0.4);
-        border-color: rgba(255,255,255,0.9);
-    }
-    
-    .rating-btn:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 8px rgba(239, 79, 95, 0.3);
-    }
-    
-    /* Rating value display */
-    .rating-value {
-        font-size: 28px;
-        font-weight: 700;
-        color: #ffffff;
-        min-width: 60px;
-        text-align: center;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    .rating-section [data-testid="stHorizontalBlock"] [data-testid="column"] .stButton > button:hover {
+        background: linear-gradient(135deg, #ff6b7a 0%, #ef4f5f 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba(239, 79, 95, 0.5), inset 0 1px 0 rgba(255,255,255,0.4) !important;
+        border-color: rgba(255,255,255,0.9) !important;
     }
     
     /* Ensure rating section columns don't stretch */
@@ -707,33 +685,25 @@ with col3:
 st.markdown('<div class="rating-section">', unsafe_allow_html=True)
 st.markdown('<div class="field-label"><span class="icon">⭐</span> Ratings *</div>', unsafe_allow_html=True)
 
-# Custom HTML rating stepper with proper styling
-rating_html = f"""
-<div class="rating-stepper-container">
-    <form action="" method="get" style="display: inline;">
-        <input type="hidden" name="rating_action" value="minus">
-        <button type="submit" class="rating-btn">−</button>
-    </form>
-    <div class="rating-value">{st.session_state.rating}</div>
-    <form action="" method="get" style="display: inline;">
-        <input type="hidden" name="rating_action" value="plus">
-        <button type="submit" class="rating-btn">+</button>
-    </form>
-</div>
-"""
-st.markdown(rating_html, unsafe_allow_html=True)
+# Use Streamlit columns for layout
+rating_cols = st.columns([1, 1.5, 1])
 
-# Handle rating changes from query params
-query_params = st.query_params
-if "rating_action" in query_params:
-    action = query_params["rating_action"]
-    if action == "minus" and st.session_state.rating > 0:
-        st.session_state.rating = round(st.session_state.rating - 0.5, 1)
-        st.query_params.clear()
+with rating_cols[0]:
+    # Use a unique key and check if button was clicked via session state
+    if st.button("−", key="rating_minus_btn"):
+        new_rating = round(st.session_state.rating - 0.5, 1)
+        if new_rating >= 0:
+            st.session_state.rating = new_rating
         st.rerun()
-    elif action == "plus" and st.session_state.rating < 5:
-        st.session_state.rating = round(st.session_state.rating + 0.5, 1)
-        st.query_params.clear()
+
+with rating_cols[1]:
+    st.markdown(f'<div style="text-align: center; font-size: 1.8rem; font-weight: 700; color: white; line-height: 42px;">{st.session_state.rating}</div>', unsafe_allow_html=True)
+
+with rating_cols[2]:
+    if st.button("+", key="rating_plus_btn"):
+        new_rating = round(st.session_state.rating + 0.5, 1)
+        if new_rating <= 5:
+            st.session_state.rating = new_rating
         st.rerun()
 
 st.markdown('</div>', unsafe_allow_html=True)
