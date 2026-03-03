@@ -328,40 +328,53 @@ st.markdown("""
         gap: 1rem;
     }
     
-    /* Rating stepper - Style Streamlit buttons within rating section */
+    /* Rating stepper - Ultra specific targeting */
     .rating-section [data-testid="stHorizontalBlock"] {
-        gap: 0.5rem !important;
+        gap: 8px !important;
         align-items: center !important;
+        width: fit-content !important;
     }
     
-    /* Target buttons in the rating section specifically */
-    .rating-section [data-testid="stHorizontalBlock"] [data-testid="column"] .stButton > button {
-        width: 50px !important;
-        height: 40px !important;
-        min-width: 50px !important;
-        max-width: 50px !important;
-        border-radius: 10px !important;
+    /* Target rating buttons by their data-testid attribute containing the key */
+    button[data-testid^="stBaseButton-rating_minus_unique"],
+    button[data-testid^="stBaseButton-rating_plus_unique"] {
+        width: 48px !important;
+        height: 38px !important;
+        min-width: 48px !important;
+        max-width: 48px !important;
+        border-radius: 8px !important;
         background: linear-gradient(135deg, #ef4f5f 0%, #dc2626 100%) !important;
-        border: 2px solid rgba(255,255,255,0.7) !important;
+        border: 2px solid rgba(255,255,255,0.8) !important;
         color: #ffffff !important;
-        font-size: 20px !important;
+        font-size: 22px !important;
         font-weight: 700 !important;
         padding: 0 !important;
+        margin: 0 !important;
         box-shadow: 0 4px 12px rgba(239, 79, 95, 0.4), inset 0 1px 0 rgba(255,255,255,0.3) !important;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.4) !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important;
         line-height: 1 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
     
-    .rating-section [data-testid="stHorizontalBlock"] [data-testid="column"] .stButton > button:hover {
+    button[data-testid^="stBaseButton-rating_minus_unique"]:hover,
+    button[data-testid^="stBaseButton-rating_plus_unique"]:hover {
         background: linear-gradient(135deg, #ff6b7a 0%, #ef4f5f 100%) !important;
         transform: translateY(-2px) !important;
         box-shadow: 0 6px 16px rgba(239, 79, 95, 0.5), inset 0 1px 0 rgba(255,255,255,0.4) !important;
-        border-color: rgba(255,255,255,0.9) !important;
+        border-color: rgba(255,255,255,1) !important;
     }
     
-    /* Ensure rating section columns don't stretch */
-    .rating-section > div > div {
-        gap: 0.5rem !important;
+    /* Rating display value */
+    .rating-display-value {
+        font-size: 24px !important;
+        font-weight: 700 !important;
+        color: #ffffff !important;
+        text-align: center !important;
+        min-width: 50px !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+        line-height: 38px !important;
     }
     
     /* Submit button */
@@ -685,26 +698,41 @@ with col3:
 st.markdown('<div class="rating-section">', unsafe_allow_html=True)
 st.markdown('<div class="field-label"><span class="icon">⭐</span> Ratings *</div>', unsafe_allow_html=True)
 
-# Use Streamlit columns for layout
-rating_cols = st.columns([1, 1.5, 1])
-
-with rating_cols[0]:
-    # Use a unique key and check if button was clicked via session state
-    if st.button("−", key="rating_minus_btn"):
-        new_rating = round(st.session_state.rating - 0.5, 1)
-        if new_rating >= 0:
-            st.session_state.rating = new_rating
-        st.rerun()
-
-with rating_cols[1]:
-    st.markdown(f'<div style="text-align: center; font-size: 1.8rem; font-weight: 700; color: white; line-height: 42px;">{st.session_state.rating}</div>', unsafe_allow_html=True)
-
-with rating_cols[2]:
-    if st.button("+", key="rating_plus_btn"):
-        new_rating = round(st.session_state.rating + 0.5, 1)
-        if new_rating <= 5:
-            st.session_state.rating = new_rating
-        st.rerun()
+# Create a container for the stepper
+stepper_container = st.container()
+with stepper_container:
+    # Use minimal gap columns
+    minus_col, val_col, plus_col = st.columns([1, 1.2, 1])
+    
+    with minus_col:
+        minus_clicked = st.button(
+            label="−",
+            key="rating_minus_unique",
+            help="Decrease rating by 0.5"
+        )
+        if minus_clicked:
+            new_rating = round(st.session_state.rating - 0.5, 1)
+            if new_rating >= 0:
+                st.session_state.rating = max(0, new_rating)
+            st.rerun()
+    
+    with val_col:
+        st.markdown(
+            f'<div class="rating-display-value">{st.session_state.rating}</div>',
+            unsafe_allow_html=True
+        )
+    
+    with plus_col:
+        plus_clicked = st.button(
+            label="+",
+            key="rating_plus_unique", 
+            help="Increase rating by 0.5"
+        )
+        if plus_clicked:
+            new_rating = round(st.session_state.rating + 0.5, 1)
+            if new_rating <= 5:
+                st.session_state.rating = min(5, new_rating)
+            st.rerun()
 
 st.markdown('</div>', unsafe_allow_html=True)
 
