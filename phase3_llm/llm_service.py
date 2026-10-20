@@ -16,7 +16,7 @@ class RestaurantOrchestrator:
         # Use environment variable for DB path, fallback to local path
         db_path = os.getenv("DB_PATH")
         self.retrieval_engine = RetrievalEngine(db_path=db_path)
-        self.model = "llama-3.3-70b-versatile"
+        self.model="openai/gpt-oss-120b"
 
     def extract_search_params(self, user_query):
         """
